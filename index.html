@@ -189,7 +189,7 @@
 
     <script>
         // PALITAN MO ITO NG IYONG GOOGLE APPS SCRIPT URL NA MAY /exec SA DULO
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbztcygWUOh2MCRSzn8YfNRHbRQnOz_y-h30lhMLehkhfwigHcuG_RKjPSbu2oSBVl0hUg/exec";
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzWrV9w6fVAxxBUlUV2rufcZ5Iug3ywT9urscigbnjZ3Zkz6oU5OEhtt68nVO7BHO8wuA/exec";
 
         const searchInput = document.getElementById('searchInput');
         const searchBtn = document.getElementById('searchBtn');
@@ -216,7 +216,7 @@
                     }
 
                     // I-display ang lahat ng columns galing sa Google Sheet
-                    data.forEach(record => {
+                                     data.forEach(record => {
                         let statusClass = 'status-pending';
                         const statusLower = (record.status || '').toLowerCase();
                         if (statusLower.includes('transit')) statusClass = 'status-intransit';
@@ -225,24 +225,31 @@
 
                         const formattedDate = record.timestamp ? new Date(record.timestamp).toLocaleString() : 'N/A';
 
+                        // Hiwalayin ang bawat line ng History para malinis tingnan
+                        const historyLines = record.remarks ? record.remarks.split('\n').map(line => `<div style="color:#aaa; font-size:12px; margin-top:4px; padding-left:10px; border-left: 2px dashed #555;">${line}</div>`).join('') : '<span style="color:#666;">No previous logs</span>';
+
                         const card = document.createElement('div');
                         card.className = 'card';
                         card.innerHTML = `
                             <div class="card-header">
-                                <div class="card-title">${record.branch || 'No Branch'}</div>
+                                <div class="card-title">${record.branch || 'No Branch Assigned'}</div>
                                 <span class="status-badge ${statusClass}">${record.status || 'Pending'}</span>
                             </div>
                             <div class="card-body">
-                                <p><span>Timestamp:</span> ${formattedDate}</p>
+                                <p style="color:#ffcc00; font-weight:700; margin-bottom:10px; border-bottom:1px solid #333; padding-bottom:4px;">CURRENT LATEST STATUS</p>
+                                <p><span>Last Updated:</span> ${formattedDate}</p>
                                 <p><span>Location:</span> ${record.location || 'N/A'}</p>
-                                <p><span>Item Description:</span> ${record.item || 'N/A'}</p>
-                                <p><span>Received By:</span> ${record.receivedBy || 'N/A'}</p>
+                                <p><span>Item Name:</span> ${record.item || 'N/A'}</p>
+                                <p><span>Current Receiver:</span> ${record.receivedBy || 'N/A'}</p>
                                 <p><span>Contact Number:</span> ${record.contactNumber || 'N/A'}</p>
-                                <p><span>Remarks:</span> ${record.remarks || 'None'}</p>
+                                
+                                <p style="color:#ffcc00; font-weight:700; margin-top:15px; margin-bottom:5px; border-bottom:1px solid #333; padding-bottom:4px;">PREVIOUS HISTORY LOGS</p>
+                                <div>${historyLines}</div>
                             </div>
                         `;
                         resultsContainer.appendChild(card);
                     });
+
                 })
                 .catch(error => {
                     console.error(error);
