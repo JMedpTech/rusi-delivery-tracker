@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RUSI EDP - Delivery Tracker</title>
-    <!-- Google Fonts -->
+    <!-- Google Fonts para sa Poppins text support -->
     <link href="https://googleapis.com" rel="stylesheet">
     <style>
         * {
@@ -32,6 +32,7 @@
             box-shadow: 0 8px 24px rgba(0,0,0,0.5);
             padding: 35px 25px;
             text-align: center;
+            border-top: 6px solid #ffcc00;
         }
 
         .title-area h1 {
@@ -90,7 +91,7 @@
         .results-container {
             margin-top: 20px;
             text-align: left;
-            max-height: 450px;
+            max-height: 480px;
             overflow-y: auto;
             padding-right: 5px;
         }
@@ -151,7 +152,7 @@
             color: #ffcc00;
             font-weight: 600;
             display: inline-block;
-            width: 140px; /* Pantay-pantay na alignment ng mga detalye */
+            width: 140px; /* Pantay-pantay na alignment */
         }
 
         .no-data {
@@ -188,7 +189,6 @@
     </div>
 
     <script>
-        // PALITAN MO ITO NG IYONG GOOGLE APPS SCRIPT URL NA MAY /exec SA DULO
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz7m_jzjt-c_04hxQ6npz4ZUd4SywC0jTRWa5O2P3RggUgUKOHU8pauBYUlnduoxPYpFg/exec";
 
         const searchInput = document.getElementById('searchInput');
@@ -198,13 +198,12 @@
         function doSearch() {
             const query = searchInput.value.trim();
             if (!query) {
-                resultsContainer.innerHTML = '<div class="no-data">Please enter a branch name or location.</div>';
+                resultsContainer.innerHTML = '<div class="no-data">Please enter a branch name.</div>';
                 return;
             }
 
             resultsContainer.innerHTML = '<div class="loading">Searching database, please wait...</div>';
 
-            // I-fetch ang data gamit ang GET method
             fetch(`${WEB_APP_URL}?search=${encodeURIComponent(query)}`)
                 .then(response => response.json())
                 .then(data => {
@@ -215,8 +214,7 @@
                         return;
                     }
 
-                    // I-display ang lahat ng columns galing sa Google Sheet
-                                     data.forEach(record => {
+                    data.forEach(record => {
                         let statusClass = 'status-pending';
                         const statusLower = (record.status || '').toLowerCase();
                         if (statusLower.includes('transit')) statusClass = 'status-intransit';
@@ -225,11 +223,12 @@
 
                         const formattedDate = record.timestamp ? new Date(record.timestamp).toLocaleString() : 'N/A';
 
-                        // Hiwalayin ang bawat line ng History para malinis tingnan
-                        const historyLines = record.remarks ? record.remarks.split('\n').map(line => `<div style="color:#aaa; font-size:12px; margin-top:4px; padding-left:10px; border-left: 2px dashed #555;">${line}</div>`).join('') : '<span style="color:#666;">No previous logs</span>';
+                        const historyLines = record.remarks ? record.remarks.split('\n').map(line => `<div style="color:#aaa; font-size:12px; margin-top:4px; padding-left:10px; border-left: 2px dashed #555;">${line}</div>`).join('') : '<span style="color:#666; font-size:12px;">No previous logs</span>';
 
                         const card = document.createElement('div');
                         card.className = 'card';
+                        
+                        // NAITAMANG MAPPING: Inihayag na nang magkahiwalay ang ID Number at Item Name
                         card.innerHTML = `
                             <div class="card-header">
                                 <div class="card-title">${record.branch || 'No Branch Assigned'}</div>
@@ -239,7 +238,8 @@
                                 <p style="color:#ffcc00; font-weight:700; margin-bottom:10px; border-bottom:1px solid #333; padding-bottom:4px;">CURRENT LATEST STATUS</p>
                                 <p><span>Last Updated:</span> ${formattedDate}</p>
                                 <p><span>Location:</span> ${record.location || 'N/A'}</p>
-                                <p><span>Item Name:</span> ${record.item || 'N/A'}</p>
+                                <p><span>ID Number:</span> ${record.idNumber || 'N/A'}</p>
+                                <p><span>Item Description:</span> ${record.item || 'N/A'}</p>
                                 <p><span>Current Receiver:</span> ${record.receivedBy || 'N/A'}</p>
                                 <p><span>Contact Number:</span> ${record.contactNumber || 'N/A'}</p>
                                 
